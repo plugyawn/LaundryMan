@@ -1,0 +1,407 @@
+-- MySQL dump 10.13  Distrib 8.3.0, for macos14 (arm64)
+--
+-- Host: localhost    Database: laundryMan
+-- ------------------------------------------------------
+-- Server version	8.3.0
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `belongs_to`
+--
+
+DROP TABLE IF EXISTS `belongs_to`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `belongs_to` (
+  `Clothing_ID` int DEFAULT NULL,
+  `Order_ID` int DEFAULT NULL,
+  KEY `Clothing_ID` (`Clothing_ID`),
+  KEY `Order_ID` (`Order_ID`),
+  CONSTRAINT `belongs_to_ibfk_1` FOREIGN KEY (`Clothing_ID`) REFERENCES `customer` (`Laundry_No`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `belongs_to_ibfk_2` FOREIGN KEY (`Order_ID`) REFERENCES `order` (`Order_ID`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `belongs_to`
+--
+
+LOCK TABLES `belongs_to` WRITE;
+/*!40000 ALTER TABLE `belongs_to` DISABLE KEYS */;
+INSERT INTO `belongs_to` VALUES (1,31),(2,41),(2,12),(4,53),(10,9),(6,71),(7,25),(9,63),(9,35),(10,14),(11,50),(12,17),(13,61),(14,67),(25,61),(25,74),(67,67),(67,11),(19,69),(20,75);
+/*!40000 ALTER TABLE `belongs_to` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `customer`
+--
+
+DROP TABLE IF EXISTS `customer`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `customer` (
+  `Laundry_No` int NOT NULL,
+  `First_Name` varchar(255) NOT NULL,
+  `Middle_Name` varchar(255) DEFAULT NULL,
+  `Last_Name` varchar(255) NOT NULL,
+  `Roll_No` varchar(255) DEFAULT NULL,
+  `Age` int DEFAULT NULL,
+  `Gender` varchar(10) DEFAULT NULL,
+  `Course` varchar(255) DEFAULT NULL,
+  `Branch` varchar(255) DEFAULT NULL,
+  `Room_No` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`Laundry_No`),
+  UNIQUE KEY `Roll_No` (`Roll_No`),
+  KEY `Room_No` (`Room_No`),
+  CONSTRAINT `customer_ibfk_1` FOREIGN KEY (`Room_No`) REFERENCES `hostel` (`Room_No`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `customer_chk_1` CHECK (((`Age` >= 18) and (`Age` <= 30)))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `customer`
+--
+
+LOCK TABLES `customer` WRITE;
+/*!40000 ALTER TABLE `customer` DISABLE KEYS */;
+INSERT INTO `customer` VALUES (1,'Elizabeth','Matthew','Keith','21588857',26,'Male','PHD','CHEM','G-431'),(2,'Katherine','Cindy','Shea','17433665',21,'Female','MA','PHY','G-132'),(3,'Andrew','Angela','Harrison','23556997',27,'Female','POSTDOC','BIO','C-482'),(4,'Rachel','John','Hernandez','23245109',22,'Female','MA','EE','E-174'),(5,'Amber','Erin','Newman','18381071',26,'Female','BTECH','CSE','I-391'),(6,'Joel','Amy','Long','19143700',22,'Female','MTECH','CSE','B-387'),(7,'Evelyn','Alicia','Bowman','20213904',26,'Female','MSC','PHY','D-460'),(8,'Lori','Shelby','Thomas','20156661',22,'Male','POSTDOC','BIO','B-194'),(9,'Emily','Briana','Barron','18547163',25,'Female','BTECH','CHEM','B-159'),(10,'Lisa','James','Lyons','20231630',27,'Male','POSTDOC','BIO','F-462'),(11,'Cynthia','Curtis','Ortiz','22008207',25,'Female','BTECH','BIO','A-485'),(12,'Katelyn','Kevin','Ray','17199489',28,'Male','MA','PHY','B-191'),(13,'Erin','Austin','Lowery','18104395',21,'Male','MA','CHEM','F-456'),(14,'David','Jeffrey','Howe','19434034',20,'Female','MA','CHEM','E-228'),(15,'Ashley','Laura','Barton','19502794',21,'Female','POSTDOC','PHY','I-363'),(16,'Heather','Kristin','Zhang','20400252',24,'Male','MA','CSE','F-111'),(17,'Stephanie','Martin','Huynh','19065716',28,'Female','MSC','EE','C-365'),(18,'William','Krystal','Rivera','18850752',27,'Female','PHD','COG','H-399'),(19,'Cynthia','Michael','Williams','18351470',22,'Male','BTECH','PHY','I-471'),(20,'Ashley','Erica','Rodriguez','17888015',29,'Male','MA','EE','E-131'),(21,'Sharon','Melanie','Morrison','23656966',20,'Male','PHD','CE','H-459'),(22,'James','Austin','Williams','22215216',27,'Female','BTECH','CSE','J-412'),(23,'Barbara','David','Kelly','18410673',26,'Female','MTECH','ME','A-490'),(24,'Scott','Kenneth','Foster','20029982',28,'Female','MSC','CL','B-461'),(25,'John','James','Wiggins','20826493',22,'Male','MSC','EE','A-241'),(26,'Amber','Ashley','English','19811088',26,'Female','MA','CHEM','J-184'),(27,'Mitchell','Scott','Smith','17487104',23,'Female','PHD','ME','B-339'),(28,'Aaron','Tammy','Carr','20189814',21,'Female','BTECH','CE','D-329'),(29,'Colleen','Joanna','Strickland','18328281',26,'Female','PHD','CHEM','F-137'),(30,'James','James','Norris','22346719',30,'Male','PHD','COG','D-270'),(31,'Jean','Richard','Schmidt','22869938',27,'Female','MTECH','EE','B-297'),(32,'Richard','Karen','Figueroa','22047895',20,'Female','POSTDOC','PHY','F-322'),(33,'Trevor','Christopher','Guzman','18445286',29,'Male','BTECH','BIO','J-369'),(34,'Jonathan','David','Cannon','18134348',21,'Female','MSC','CSE','I-475'),(35,'Kaylee','Ashley','Johnson','17256859',25,'Female','PHD','COG','A-144'),(36,'Shawn','Tiffany','Compton','19399078',19,'Male','MTECH','COG','G-458'),(37,'Matthew','Lisa','Wagner','22332532',23,'Male','PHD','CE','J-128'),(38,'Kaylee','David','Wallace','22535356',21,'Female','POSTDOC','CSE','H-227'),(39,'Jesus','Jessica','Cunningham','22061996',28,'Female','MA','PHY','J-110'),(40,'Robin','Michael','Johnson','22694049',21,'Male','MA','CHEM','B-451'),(41,'James','Seth','Travis','19554428',30,'Female','PHD','EE','G-246'),(42,'Joanne','Anna','Moore','22949180',29,'Female','MSC','PHY','E-147'),(43,'Samuel','Derek','Wood','17247867',21,'Male','PHD','PHY','J-186'),(44,'Joel','Joseph','Jacobs','23399601',19,'Female','BTECH','CE','E-335'),(45,'Misty','Darryl','Ramos','18577013',26,'Male','PHD','BIO','G-188'),(46,'Michelle','Timothy','Wallace','22025634',20,'Female','MA','COG','C-292'),(47,'Tammy','Erica','Hale','18186081',29,'Male','MTECH','ME','J-168'),(48,'James','Katherine','Patton','23981694',19,'Female','MSC','EE','F-348'),(49,'Kathleen','Holly','Thomas','21533999',29,'Female','BTECH','CE','B-454'),(50,'Michael','Joy','Gonzales','19763028',30,'Male','MA','EE','A-162'),(51,'Lindsey','Todd','Mills','19128208',28,'Female','BTECH','PHY','G-431'),(52,'Virginia','Cheryl','Wolfe','17905732',29,'Female','MA','EE','G-132'),(53,'Christopher','Drew','Banks','19119577',22,'Male','BTECH','BIO','C-482'),(54,'Debbie','Valerie','Jones','20934869',28,'Female','POSTDOC','ME','E-174'),(55,'Richard','Kelly','Calhoun','18108544',29,'Female','MSC','EE','I-391'),(56,'Sabrina','Victoria','Murphy','23008221',27,'Female','PHD','BIO','B-387'),(57,'Amanda','Richard','Rivas','21543515',29,'Female','MA','COG','D-460'),(58,'Timothy','Philip','White','18953786',19,'Female','MA','PHY','B-194'),(59,'Renee','Billy','Martinez','21930800',26,'Male','MA','PHY','B-159'),(60,'Albert','Lori','Bowman','21252845',20,'Male','POSTDOC','CSE','F-462'),(61,'Andrea','Hunter','Dunn','20547728',23,'Female','MA','CSE','A-485'),(62,'Russell','Courtney','Gonzalez','17434229',26,'Female','MTECH','PHY','B-191'),(63,'Jessica','Robin','Walter','19382599',25,'Male','MSC','PHY','F-456'),(64,'Donna','Melissa','Smith','23466899',28,'Female','MA','CSE','E-228'),(65,'Christopher','David','Long','22443404',18,'Female','MSC','EE','I-363'),(66,'Jessica','Amanda','Chandler','18991207',23,'Male','BTECH','PHY','F-111'),(67,'John','Jacqueline','Potts','21225753',29,'Female','POSTDOC','CL','C-365'),(68,'James','Amber','Stokes','19304113',21,'Male','MSC','COG','H-399'),(69,'Nicole','Garrett','Wood','22198512',25,'Male','BTECH','EE','I-471'),(70,'Kenneth','Brandon','Simmons','17241672',24,'Female','MTECH','PHY','E-131');
+/*!40000 ALTER TABLE `customer` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `gsj_employee`
+--
+
+DROP TABLE IF EXISTS `gsj_employee`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `gsj_employee` (
+  `Employee_ID` int NOT NULL,
+  `First_Name` varchar(255) NOT NULL,
+  `Middle_Name` varchar(255) DEFAULT NULL,
+  `Last_Name` varchar(255) NOT NULL,
+  `Salary` decimal(10,2) DEFAULT NULL,
+  PRIMARY KEY (`Employee_ID`),
+  CONSTRAINT `gsj_employee_chk_1` CHECK ((`Salary` > 0))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `gsj_employee`
+--
+
+LOCK TABLES `gsj_employee` WRITE;
+/*!40000 ALTER TABLE `gsj_employee` DISABLE KEYS */;
+INSERT INTO `gsj_employee` VALUES (2147,'Marcus','Sara','Deleon',48967.86),(2371,'Julie','Michael','Vazquez',32336.98),(2455,'Isaac','Heather','Barrett',31624.30),(2487,'Todd','Joseph','Greene',56662.29),(2776,'Courtney','Regina','Conley',55877.15),(3065,'Ashley','Jessica','Mejia',52942.75),(4446,'Shane','Brandi','Murphy',40499.41),(4765,'Frank','Karen','Flores',47225.51),(7924,'Theodore','Matthew','Jenkins',56737.74),(9949,'Dana','Kristin','Green',59204.58);
+/*!40000 ALTER TABLE `gsj_employee` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `hostel`
+--
+
+DROP TABLE IF EXISTS `hostel`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `hostel` (
+  `Name` varchar(255) NOT NULL,
+  `Room_No` varchar(255) NOT NULL,
+  PRIMARY KEY (`Room_No`),
+  KEY `Hostel_idx` (`Name`),
+  CONSTRAINT `hostel_chk_1` CHECK (regexp_like(`Room_No`,_utf8mb4'^[A-L]-[1-4][0-9]{2}$'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `hostel`
+--
+
+LOCK TABLES `hostel` WRITE;
+/*!40000 ALTER TABLE `hostel` DISABLE KEYS */;
+INSERT INTO `hostel` VALUES ('Aibaan','A-144'),('Aibaan','A-162'),('Aibaan','A-241'),('Aibaan','A-485'),('Aibaan','A-490'),('Beauki','B-159'),('Beauki','B-191'),('Beauki','B-194'),('Beauki','B-297'),('Beauki','B-339'),('Beauki','B-387'),('Beauki','B-451'),('Beauki','B-454'),('Beauki','B-461'),('Chimair','C-292'),('Chimair','C-365'),('Chimair','C-482'),('Duven','D-270'),('Duven','D-329'),('Duven','D-460'),('Emiet','E-147'),('Emiet','E-174'),('Emiet','E-228'),('Emiet','E-335'),('Firpeal','F-111'),('Firpeal','F-137'),('Firpeal','F-322'),('Firpeal','F-348'),('Firpeal','F-456'),('Firpeal','F-462'),('Griwiksh','G-132'),('Griwiksh','G-188'),('Griwiksh','G-246'),('Griwiksh','G-431'),('Griwiksh','G-458'),('Hiqom','H-227'),('Hiqom','H-399'),('Ijokha','I-363'),('Ijokha','I-391'),('Ijokha','I-471'),('Ijokha','I-475'),('Jurqia','J-110'),('Jurqia','J-128'),('Jurqia','J-168'),('Jurqia','J-184'),('Jurqia','J-186'),('Jurqia','J-369'),('Jurqia','J-412'),('Kyzeel','E-131'),('Lekhag','H-459');
+/*!40000 ALTER TABLE `hostel` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `item_of_clothing`
+--
+
+DROP TABLE IF EXISTS `item_of_clothing`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `item_of_clothing` (
+  `Descr` varchar(255) NOT NULL,
+  `Clothing_ID` int DEFAULT NULL,
+  `Color` varchar(50) DEFAULT NULL,
+  `Brand` varchar(50) DEFAULT NULL,
+  `Size` varchar(50) DEFAULT NULL,
+  `Price` decimal(10,2) DEFAULT NULL,
+  `Quantity` int DEFAULT NULL,
+  KEY `Clothing_ID` (`Clothing_ID`),
+  CONSTRAINT `item_of_clothing_ibfk_1` FOREIGN KEY (`Clothing_ID`) REFERENCES `customer` (`Laundry_No`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `item_of_clothing`
+--
+
+LOCK TABLES `item_of_clothing` WRITE;
+/*!40000 ALTER TABLE `item_of_clothing` DISABLE KEYS */;
+INSERT INTO `item_of_clothing` VALUES ('Shirt',16,'PowderBlue','Maddox, Miller and Carroll','L',214.86,3),('Full',5,'DarkGreen','Terry, Spencer and Jones','XL',491.07,7),('Full',33,'PowderBlue','Simpson-Rodriguez','L',139.19,2),('Bedsheet',26,'LightSlateGray','Chen, Perez and Potter','XL',247.65,1),('Special',60,'Coral','Jensen, Richardson and Cruz','XXL',191.99,10),('Saree',22,'Yellow','Baldwin Ltd','M',325.64,6),('Special',15,'LightSalmon','Moore, Cortez and Parsons','L',878.46,4),('Pant',53,'Gold','Sanders-King','S',582.94,10),('Bedsheet',23,'Ivory','Jenkins-Hubbard','XL',248.62,2),('Pant',65,'Peru','Knight, Barrett and Fields','XL',219.17,6),('Full',47,'Ivory','Harris and Sons','XXL',382.15,3),('Full',6,'DimGray','Campbell-Copeland','XL',899.71,2),('Tshirt',23,'Coral','Smith-Melendez','XL',195.27,9),('Pant',37,'Salmon','Barnes PLC','XXL',446.07,6),('Pant',44,'MediumSlateBlue','Wade-Quinn','XXL',291.54,4),('Tshirt',20,'MediumSpringGreen','Tucker Ltd','M',540.49,6),('Special',41,'MediumAquaMarine','Walker Ltd','XXL',512.44,8),('Full',22,'DeepPink','Mcintosh-Macias','XXL',378.03,6),('Full',65,'Orchid','Anderson Ltd','XXL',821.96,9),('Bedsheet',66,'Black','Lynch, Miller and Rogers','L',336.01,9);
+/*!40000 ALTER TABLE `item_of_clothing` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `order`
+--
+
+DROP TABLE IF EXISTS `order`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `order` (
+  `Order_ID` int NOT NULL,
+  `Type_of_Service` varchar(255) NOT NULL,
+  `Hostel_Name` varchar(255) DEFAULT NULL,
+  `Total_Quantity` int DEFAULT NULL,
+  `Status` varchar(255) NOT NULL,
+  `Customer_Laundry_No` int DEFAULT NULL,
+  `Hostel_Room_No` varchar(255) DEFAULT NULL,
+  `Employee_ID` int DEFAULT NULL,
+  PRIMARY KEY (`Order_ID`),
+  KEY `Employee_ID` (`Employee_ID`),
+  KEY `Hostel_Room_No` (`Hostel_Room_No`),
+  CONSTRAINT `order_ibfk_1` FOREIGN KEY (`Employee_ID`) REFERENCES `gsj_employee` (`Employee_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `order_ibfk_2` FOREIGN KEY (`Hostel_Room_No`) REFERENCES `hostel` (`Room_No`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `order_chk_1` CHECK ((`Total_Quantity` > 0)),
+  CONSTRAINT `order_chk_2` CHECK ((`Status` in (_utf8mb4'Received',_utf8mb4'Processing',_utf8mb4'Completed')))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `order`
+--
+
+LOCK TABLES `order` WRITE;
+/*!40000 ALTER TABLE `order` DISABLE KEYS */;
+INSERT INTO `order` VALUES (1,'Wash','Ijokha',1,'Completed',NULL,'G-431',2455),(2,'Iron','Hiqom',12,'Received',NULL,'G-132',3065),(3,'DryClean','Duven',11,'Completed',NULL,'C-482',2487),(4,'Wash','Chimair',6,'Received',NULL,'E-174',2371),(5,'Wash','Beauki',2,'Processing',NULL,'I-391',4765),(6,'All','Aibaan',9,'Received',NULL,'B-387',4446),(7,'Wash','Griwiksh',6,'Processing',NULL,'D-460',2776),(8,'DryClean','Chimair',11,'Processing',NULL,'B-194',9949),(9,'All','Aibaan',14,'Received',NULL,'B-159',7924),(10,'All','Hiqom',7,'Processing',NULL,'F-462',2147),(11,'All','Beauki',10,'Completed',NULL,'A-485',2455),(12,'DryClean','Chimair',10,'Processing',NULL,'B-191',3065),(13,'Iron','Aibaan',4,'Received',NULL,'F-456',2487),(14,'DryClean','Chimair',15,'Received',NULL,'E-228',2371),(15,'Wash','Jurqia',1,'Processing',NULL,'I-363',4765),(16,'All','Ijokha',1,'Completed',NULL,'F-111',4446),(17,'DryClean','Emiet',20,'Processing',NULL,'C-365',2776),(18,'All','Beauki',18,'Processing',NULL,'H-399',9949),(19,'Wash','Beauki',11,'Processing',NULL,'I-471',2455),(20,'Iron','Firpeal',1,'Received',NULL,'E-131',3065),(21,'Iron','Griwiksh',17,'Completed',NULL,'H-459',2487),(22,'Wash','Beauki',13,'Completed',NULL,'J-412',2371),(23,'Wash','Emiet',19,'Received',NULL,'A-490',4765),(24,'Wash','Griwiksh',6,'Completed',NULL,'B-461',4446),(25,'DryClean','Aibaan',13,'Processing',NULL,'A-241',2776),(26,'DryClean','Emiet',7,'Processing',NULL,'J-184',9949),(27,'Wash','Hiqom',13,'Processing',NULL,'B-339',7924),(28,'DryClean','Firpeal',6,'Processing',NULL,'D-329',2147),(29,'Iron','Jurqia',15,'Completed',NULL,'F-137',2455),(30,'Iron','Beauki',14,'Received',NULL,'D-270',3065),(31,'Wash','Duven',13,'Received',NULL,'B-297',2487),(32,'All','Beauki',1,'Completed',NULL,'F-322',2371),(33,'Wash','Jurqia',17,'Completed',NULL,'J-369',4765),(34,'Iron','Ijokha',16,'Processing',NULL,'I-475',4446),(35,'DryClean','Chimair',2,'Received',NULL,'A-144',2776),(36,'All','Aibaan',17,'Received',NULL,'G-458',9949),(37,'All','Aibaan',20,'Received',NULL,'J-128',7924),(38,'Wash','Duven',20,'Completed',NULL,'H-227',2147),(39,'All','Emiet',12,'Received',NULL,'J-110',2455),(40,'Wash','Firpeal',10,'Completed',NULL,'B-451',3065),(41,'Iron','Duven',12,'Received',NULL,'G-246',2487),(42,'Wash','Ijokha',13,'Received',NULL,'E-147',2371),(43,'DryClean','Chimair',4,'Completed',NULL,'J-186',4765),(44,'Wash','Griwiksh',14,'Received',NULL,'E-335',4446),(45,'Wash','Emiet',16,'Received',NULL,'G-188',2776),(46,'Wash','Firpeal',11,'Completed',NULL,'C-292',9949),(47,'Iron','Ijokha',14,'Processing',NULL,'J-168',7924),(48,'All','Jurqia',14,'Processing',NULL,'F-348',2147),(49,'All','Emiet',6,'Received',NULL,'B-454',2455),(50,'All','Ijokha',17,'Processing',NULL,'A-162',3065),(51,'All','Hiqom',3,'Processing',NULL,'G-431',2487),(52,'All','Ijokha',10,'Completed',NULL,'G-132',2371),(53,'Iron','Firpeal',3,'Completed',NULL,'C-482',4765),(54,'Wash','Aibaan',8,'Received',NULL,'E-174',4446),(55,'All','Firpeal',5,'Completed',NULL,'I-391',2776),(56,'DryClean','Griwiksh',18,'Completed',NULL,'B-387',9949),(57,'Wash','Emiet',14,'Completed',NULL,'D-460',7924),(58,'Wash','Emiet',15,'Received',NULL,'B-194',2147),(59,'Iron','Chimair',8,'Received',NULL,'B-159',2455),(60,'DryClean','Griwiksh',9,'Received',NULL,'F-462',3065),(61,'Wash','Aibaan',18,'Processing',NULL,'A-485',2487),(62,'Iron','Firpeal',11,'Received',NULL,'B-191',2371),(63,'Iron','Griwiksh',7,'Completed',NULL,'F-456',4765),(64,'Wash','Griwiksh',7,'Received',NULL,'E-228',4446),(65,'All','Duven',20,'Received',NULL,'I-363',2776),(66,'All','Chimair',13,'Completed',NULL,'F-111',9949),(67,'All','Aibaan',5,'Received',NULL,'C-365',7924),(68,'Wash','Hiqom',6,'Completed',NULL,'H-399',2147),(69,'All','Hiqom',6,'Received',NULL,'I-471',2455),(70,'Wash','Firpeal',17,'Completed',NULL,'E-131',3065),(71,'All','Duven',11,'Received',NULL,'H-459',2487),(72,'Iron','Griwiksh',4,'Processing',NULL,'J-412',2371),(73,'DryClean','Hiqom',19,'Processing',NULL,'A-490',4765),(74,'All','Ijokha',7,'Processing',NULL,'B-461',4446),(75,'Wash','Hiqom',5,'Completed',NULL,'A-241',2776);
+/*!40000 ALTER TABLE `order` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `payment`
+--
+
+DROP TABLE IF EXISTS `payment`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `payment` (
+  `Payment_ID` int NOT NULL,
+  `Mode` varchar(255) NOT NULL,
+  `Amount` decimal(10,2) NOT NULL,
+  PRIMARY KEY (`Payment_ID`),
+  CONSTRAINT `payment_chk_1` CHECK ((`Mode` in (_utf8mb4'Cash',_utf8mb4'Credit',_utf8mb4'Debit',_utf8mb4'Online'))),
+  CONSTRAINT `payment_chk_2` CHECK ((`Amount` > 0))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `payment`
+--
+
+LOCK TABLES `payment` WRITE;
+/*!40000 ALTER TABLE `payment` DISABLE KEYS */;
+INSERT INTO `payment` VALUES (1056441,'Credit',252.96),(1165038,'Credit',395.10),(1215834,'Credit',288.52),(1289379,'Cash',269.40),(1304862,'Online',177.86),(1461813,'Debit',234.77),(1511077,'Debit',49.41),(1579065,'Online',399.82),(1614992,'Online',264.76),(1761583,'Debit',164.06),(1833004,'Debit',84.00),(1934759,'Debit',454.47),(2039553,'Cash',276.21),(2165017,'Online',262.57),(2329351,'Cash',443.62),(2824285,'Cash',386.06),(3451419,'Cash',173.28),(3561336,'Online',15.77),(3605697,'Online',77.93),(3680607,'Debit',357.91),(3743142,'Credit',90.91),(3952504,'Online',336.32),(3969933,'Credit',491.45),(4007299,'Credit',465.06),(4056073,'Credit',106.80),(4088448,'Cash',469.74),(4121189,'Credit',198.33),(4139046,'Online',358.16),(4196797,'Online',132.16),(4335760,'Debit',125.12),(4577317,'Debit',132.92),(4592094,'Cash',312.88),(4718416,'Online',18.82),(4840182,'Debit',118.38),(4844604,'Debit',485.06),(5116555,'Credit',466.12),(5142707,'Cash',296.18),(5197127,'Debit',364.47),(5486680,'Credit',336.92),(5514549,'Online',462.36),(5549214,'Cash',145.34),(5579149,'Cash',339.32),(5821509,'Credit',81.86),(5915204,'Online',176.99),(6002605,'Cash',83.90),(6165087,'Debit',379.72),(6282604,'Credit',327.75),(6337576,'Debit',370.60),(6346557,'Debit',117.81),(6470469,'Online',60.06),(6571421,'Credit',55.03),(6698880,'Cash',110.39),(6846578,'Cash',197.59),(6871828,'Cash',90.99),(7037168,'Cash',359.35),(7152804,'Online',287.76),(7226500,'Online',125.47),(7659671,'Debit',293.35),(7821655,'Online',484.08),(7856305,'Online',75.05),(7946996,'Credit',248.86),(8157002,'Cash',369.84),(8234582,'Cash',265.33),(8345654,'Cash',205.88),(8479340,'Debit',121.19),(8536402,'Credit',225.28),(8947427,'Credit',418.50),(9001392,'Online',247.60),(9051173,'Credit',366.79),(9183450,'Credit',60.58),(9264402,'Debit',234.78),(9266744,'Credit',322.92),(9339768,'Online',37.87),(9416071,'Credit',414.76),(9553736,'Credit',202.04);
+/*!40000 ALTER TABLE `payment` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `phone_number`
+--
+
+DROP TABLE IF EXISTS `phone_number`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `phone_number` (
+  `Phone_No` varchar(255) NOT NULL,
+  `Laundry_No` int NOT NULL,
+  PRIMARY KEY (`Phone_No`),
+  KEY `Laundry_No` (`Laundry_No`),
+  CONSTRAINT `phone_number_ibfk_1` FOREIGN KEY (`Laundry_No`) REFERENCES `customer` (`Laundry_No`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `phone_number`
+--
+
+LOCK TABLES `phone_number` WRITE;
+/*!40000 ALTER TABLE `phone_number` DISABLE KEYS */;
+INSERT INTO `phone_number` VALUES ('-8699487525',1),('-7928851375',2),('-9840565340',3),('-8234087186',4),('-9929952655',5),('-8540324018',6),('-8637028346',7),('-8409532479',8),('-9824649153',9),('-7118345615',10),('-7778863747',11),('-8610027291',12),('-7458833593',13),('-9428733396',14),('-7802799898',15),('-8348294147',16),('-8065478649',17),('-8029698891',18),('-8124015450',19),('-9180502403',20),('-9498353410',21),('-9813681227',22),('-8075410829',23),('-9018722145',24),('-9282516812',25),('-7786715459',26),('-8262251864',27),('-7091724310',28),('-8458115545',29),('-8267812120',30),('-7551953904',31),('-9590075423',32),('-8651451432',33),('-7006524970',34),('-7626444667',35),('-8174758400',36),('-7553675007',37),('-8973646495',38),('-9646689354',39),('-9810063357',40),('-8384865758',41),('-7522056771',42),('-7206655089',43),('-7805367230',44),('-8745613700',45),('-8110564866',46),('-7894066775',47),('-8572579140',48),('-7034608180',49),('-9600178138',50),('-7498658825',51),('-7137740244',52),('-7418088597',53),('-9375613021',54),('-9237670942',55),('-9925864924',56),('-9823903366',57),('-7873397637',58),('-9487416190',59),('-7297178357',60),('-7700970564',61),('-9321149692',62),('-9375664717',63),('-8437508824',64),('-9421269501',65),('-9469861172',66),('-7006813471',67),('-9228753622',68),('-7925737203',69),('-9874540821',70);
+/*!40000 ALTER TABLE `phone_number` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `places_order`
+--
+
+DROP TABLE IF EXISTS `places_order`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `places_order` (
+  `Order_ID` int DEFAULT NULL,
+  `Customer_Laundry_No` int DEFAULT NULL,
+  `Rating` int DEFAULT NULL,
+  `Feedback` varchar(255) DEFAULT NULL,
+  KEY `Order_ID` (`Order_ID`),
+  KEY `Customer_Laundry_No` (`Customer_Laundry_No`),
+  CONSTRAINT `places_order_ibfk_1` FOREIGN KEY (`Order_ID`) REFERENCES `order` (`Order_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `places_order_ibfk_2` FOREIGN KEY (`Customer_Laundry_No`) REFERENCES `customer` (`Laundry_No`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `places_order_chk_1` CHECK (((`Rating` >= 1) and (`Rating` <= 5)))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `places_order`
+--
+
+LOCK TABLES `places_order` WRITE;
+/*!40000 ALTER TABLE `places_order` DISABLE KEYS */;
+INSERT INTO `places_order` VALUES (68,46,5,'Average'),(63,37,5,'Fair'),(11,35,2,'Average'),(1,31,4,'Average'),(62,2,1,'Average'),(6,46,4,'Average'),(55,51,1,'Average'),(41,21,1,'Poor'),(1,28,1,'Poor'),(5,33,4,'Fair'),(28,69,3,'Fair'),(70,64,4,'Excellent'),(70,4,3,'Average'),(32,42,3,'Fair'),(27,62,5,'Average'),(56,8,2,'Poor'),(11,53,1,'Excellent'),(74,65,1,'Excellent'),(32,58,5,'Poor'),(59,27,4,'Average'),(17,11,1,'Good'),(33,56,4,'Poor'),(72,52,3,'Poor'),(24,31,2,'Fair'),(38,8,5,'Good'),(27,61,4,'Fair'),(37,23,4,'Fair'),(27,45,3,'Average'),(68,38,5,'Good'),(43,17,4,'Fair'),(3,23,2,'Average'),(14,39,2,'Fair'),(40,48,1,'Good'),(58,58,5,'Fair'),(16,31,4,'Poor'),(41,49,2,'Poor'),(35,56,2,'Good'),(23,1,3,'Fair'),(2,43,2,'Poor'),(37,58,4,'Excellent'),(13,49,2,'Poor'),(6,10,3,'Average'),(74,56,3,'Poor'),(59,35,5,'Excellent'),(45,24,1,'Poor'),(1,44,1,'Fair'),(73,52,1,'Average'),(34,31,5,'Fair'),(29,16,2,'Fair'),(43,17,1,'Good'),(1,63,1,'Excellent'),(58,46,4,'Excellent'),(40,40,3,'Fair'),(63,5,5,'Good'),(4,37,2,'Poor'),(3,54,2,'Average'),(27,60,2,'Average'),(30,69,5,'Excellent'),(43,2,1,'Good'),(52,64,5,'Excellent'),(29,8,1,'Excellent'),(55,22,3,'Good'),(51,16,3,'Excellent'),(29,6,4,'Fair'),(14,6,2,'Poor'),(60,44,3,'Poor'),(35,14,2,'Good'),(55,38,5,'Excellent'),(34,51,4,'Good'),(44,31,3,'Fair');
+/*!40000 ALTER TABLE `places_order` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `smart_laundry`
+--
+
+DROP TABLE IF EXISTS `smart_laundry`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `smart_laundry` (
+  `Machine_ID` int NOT NULL,
+  `Brand` varchar(255) NOT NULL,
+  `Detergent_Used` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`Machine_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `smart_laundry`
+--
+
+LOCK TABLES `smart_laundry` WRITE;
+/*!40000 ALTER TABLE `smart_laundry` DISABLE KEYS */;
+INSERT INTO `smart_laundry` VALUES (1,'Brand 1','Oswal'),(2,'Brand 2','Surf Excel'),(3,'Brand 3','Oswal'),(4,'Brand 4','Rin'),(5,'Brand 5','Oswal'),(6,'Brand 6','Rin'),(7,'Brand 7','Ghadi'),(8,'Brand 8','Nirma'),(9,'Brand 9','Rin'),(10,'Brand 10','Ghadi');
+/*!40000 ALTER TABLE `smart_laundry` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `transaction`
+--
+
+DROP TABLE IF EXISTS `transaction`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `transaction` (
+  `Order_ID` int DEFAULT NULL,
+  `Payment_ID` int DEFAULT NULL,
+  `Date` date DEFAULT NULL,
+  KEY `Order_ID` (`Order_ID`),
+  KEY `Payment_ID` (`Payment_ID`),
+  CONSTRAINT `transaction_ibfk_1` FOREIGN KEY (`Order_ID`) REFERENCES `order` (`Order_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `transaction_ibfk_2` FOREIGN KEY (`Payment_ID`) REFERENCES `payment` (`Payment_ID`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `transaction`
+--
+
+LOCK TABLES `transaction` WRITE;
+/*!40000 ALTER TABLE `transaction` DISABLE KEYS */;
+INSERT INTO `transaction` VALUES (1,5486680,'1997-03-18'),(2,4088448,'2011-05-25'),(3,8536402,'2007-03-03'),(4,3605697,'1987-06-26'),(5,4139046,'1973-02-25'),(6,1461813,'2018-06-06'),(7,4007299,'1981-06-15'),(8,5579149,'2004-07-29'),(9,5197127,'1996-02-12'),(10,6698880,'1982-06-18'),(11,5116555,'2017-09-05'),(12,4718416,'2010-08-15'),(13,6871828,'1973-08-27'),(14,1761583,'2004-09-13'),(15,7946996,'1983-04-18'),(16,3451419,'1990-03-13'),(17,5549214,'1978-11-17'),(18,4577317,'2022-03-13'),(19,2165017,'1991-08-30'),(20,9266744,'1982-07-25'),(21,1304862,'2004-08-14'),(22,4844604,'1990-05-11'),(23,7152804,'1984-06-26'),(24,1165038,'1999-12-21'),(25,7226500,'2004-05-19'),(26,1579065,'2007-04-18'),(27,7821655,'1985-05-12'),(28,8234582,'1976-09-21'),(29,1215834,'1991-09-28'),(30,9553736,'2012-12-14'),(31,1833004,'2014-04-27'),(32,2039553,'2021-03-09'),(33,6346557,'2006-02-23'),(34,4335760,'2012-03-02'),(35,3561336,'2000-08-15'),(36,4840182,'1992-03-03'),(37,8947427,'2016-06-17'),(38,7659671,'1983-12-23'),(39,6002605,'1990-02-16'),(40,4196797,'2018-02-20'),(41,3743142,'2023-05-10'),(42,9264402,'2021-12-02'),(43,5821509,'1994-12-12'),(44,3680607,'1980-08-29'),(45,9183450,'1992-11-24'),(46,3969933,'1996-03-03'),(47,9001392,'1976-12-15'),(48,5915204,'1999-01-01'),(49,6571421,'1997-04-29'),(50,7856305,'2021-12-06'),(51,9339768,'2016-08-11'),(52,4121189,'1998-01-29'),(53,9416071,'2014-07-28'),(54,1934759,'2017-12-14'),(55,4592094,'2017-10-19'),(56,6470469,'2006-06-01'),(57,1056441,'1978-01-05'),(58,2824285,'2004-03-24'),(59,6165087,'1984-01-31'),(60,1511077,'2003-03-27'),(61,4056073,'2010-08-01'),(62,6282604,'1993-02-04'),(63,8157002,'1994-01-22'),(64,1614992,'1977-03-03'),(65,7037168,'1998-01-01'),(66,1289379,'1978-06-11'),(67,3952504,'1971-10-04'),(68,6337576,'1971-09-08'),(69,9051173,'1999-08-02'),(70,6846578,'2007-02-12'),(71,2329351,'1994-01-01'),(72,8345654,'1985-03-03'),(73,5142707,'1990-06-21'),(74,5514549,'2021-07-24'),(75,8479340,'1990-11-17');
+/*!40000 ALTER TABLE `transaction` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `vehicles`
+--
+
+DROP TABLE IF EXISTS `vehicles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `vehicles` (
+  `Vehicle_ID` varchar(255) NOT NULL,
+  `Route` varchar(255) NOT NULL,
+  `Capacity` int DEFAULT NULL,
+  `Employee_ID` int DEFAULT NULL,
+  `Hostel_Name` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`Vehicle_ID`),
+  KEY `Employee_ID` (`Employee_ID`),
+  KEY `Hostel_Name` (`Hostel_Name`),
+  CONSTRAINT `vehicles_ibfk_1` FOREIGN KEY (`Employee_ID`) REFERENCES `gsj_employee` (`Employee_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `vehicles_ibfk_2` FOREIGN KEY (`Hostel_Name`) REFERENCES `hostel` (`Name`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `vehicles_chk_1` CHECK ((`Capacity` > 0))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `vehicles`
+--
+
+LOCK TABLES `vehicles` WRITE;
+/*!40000 ALTER TABLE `vehicles` DISABLE KEYS */;
+INSERT INTO `vehicles` VALUES ('GJ-02-AB-3177','4',300,2776,'Griwiksh'),('GJ-02-AB-3178','5',100,2776,'Kyzeel'),('GJ-02-AB-3199','4',300,2455,'Kyzeel'),('GJ-02-AB-3200','4',300,3065,'Lekhag'),('GJ-02-AB-3548','3',100,2147,'Jurqia'),('GJ-02-AB-4177','4',300,3065,'Beauki'),('GJ-02-AB-5261','3',400,2455,'Aibaan'),('GJ-02-AB-5357','3',100,2487,'Chimair'),('GJ-02-AB-5358','1',300,2487,'Griwiksh'),('GJ-02-AB-5514','2',300,4446,'Firpeal'),('GJ-02-AB-5515','4',300,4446,'Jurqia'),('GJ-02-AB-7165','3',300,7924,'Ijokha'),('GJ-02-AB-9086','2',200,2371,'Duven'),('GJ-02-AB-9087','2',200,2371,'Hiqom'),('GJ-02-AB-9336','1',100,4765,'Emiet'),('GJ-02-AB-9337','3',100,4765,'Ijokha'),('GJ-02-AB-9985','1',300,9949,'Hiqom');
+/*!40000 ALTER TABLE `vehicles` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `washing`
+--
+
+DROP TABLE IF EXISTS `washing`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `washing` (
+  `Order_ID` int NOT NULL,
+  `Machine_ID` int NOT NULL,
+  `Duration` int DEFAULT NULL,
+  PRIMARY KEY (`Order_ID`,`Machine_ID`),
+  KEY `Machine_ID` (`Machine_ID`),
+  CONSTRAINT `washing_ibfk_1` FOREIGN KEY (`Order_ID`) REFERENCES `order` (`Order_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `washing_ibfk_2` FOREIGN KEY (`Machine_ID`) REFERENCES `smart_laundry` (`Machine_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `washing_chk_1` CHECK ((`Duration` > 0))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `washing`
+--
+
+LOCK TABLES `washing` WRITE;
+/*!40000 ALTER TABLE `washing` DISABLE KEYS */;
+INSERT INTO `washing` VALUES (1,7,81),(2,2,60),(2,4,106),(4,4,26),(4,8,35),(4,9,68),(5,7,72),(6,7,59),(9,8,101),(10,3,79),(10,10,35),(12,9,83),(13,8,41),(14,4,103),(16,9,29),(17,5,24),(18,8,76),(19,4,105),(20,1,107),(22,4,92),(23,1,32),(23,3,79),(23,8,112),(24,2,46),(24,3,89),(24,4,96),(24,7,105),(25,8,75),(27,2,70),(27,3,82),(27,5,34),(27,9,46),(28,5,85),(32,3,120),(32,7,70),(33,9,10),(34,6,101),(37,9,64),(38,5,44),(38,10,48),(40,1,86),(41,7,58),(43,1,28),(46,2,25),(46,5,33),(50,6,71),(50,8,109),(51,4,97),(52,3,41),(52,6,14),(53,6,25),(54,1,54),(55,8,116),(55,9,45),(56,1,47),(56,4,10),(57,9,15),(59,3,37),(59,9,98),(60,5,91),(62,5,105),(63,5,51),(66,8,25),(67,7,119),(68,8,36),(70,9,34),(72,8,42),(73,8,31);
+/*!40000 ALTER TABLE `washing` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2024-04-02  2:02:27

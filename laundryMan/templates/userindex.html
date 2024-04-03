@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User SQL Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-4">
+        <h1 class="text-2xl font-bold mb-4">User SQL Dashboard</h1>
+        <div class="mb-4">
+            <label for="operation" class="block text-lg font-semibold">Operation:</label>
+            <select id="operation" class="mb-2 p-2 border border-gray-300 rounded w-full">
+                <!-- User can only read data -->
+                <option value="SELECT">SELECT</option>
+            </select>
+
+            <label for="table" class="block text-lg font-semibold">Table:</label>
+            <select id="table" class="mb-2 p-2 border border-gray-300 rounded w-full">
+                {% for table_name in table_names %}
+                    <option value="{{ table_name }}">{{ table_name }}</option>
+                {% endfor %}
+            </select>
+            
+            <label for="where" class="block text-lg font-semibold">WHERE clause:</label>
+            <input type="text" id="where" class="mb-2 p-2 border border-gray-300 rounded w-full" placeholder="Enter WHERE clause (optional)">
+            
+            <button onclick="runQuery()" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded">Run Query</button>
+        </div>
+        <div id="results"></div>
+    </div>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+
+function runQuery() {
+    const operation = document.getElementById('operation').value;
+    const tableName = document.getElementById('table').value;
+    const whereClause = document.getElementById('where').value;
+
+    const formData = new FormData();
+    formData.append('operation', operation);
+    formData.append('table_name', tableName);
+    formData.append('where_clause', whereClause);
+
+    fetch('/run_query', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Display the query results
+            displayQueryResults(data.data);
+        } else {
+            // Display an error message
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while running the query: ' + error.message);
+    });
+}
+
+function displayQueryResults(data) {
+    const resultsDiv = document.getElementById('results');
+    // Clear previous results
+    resultsDiv.innerHTML = '';
+
+    // Check if data is not empty
+    if (data && data.length > 0) {
+        const table = document.createElement('table');
+        table.classList.add('min-w-full', 'leading-normal');
+
+        // Create table header
+        const thead = document.createElement('thead');
+        thead.classList.add('bg-gray-100');
+        const headerRow = document.createElement('tr');
+        Object.keys(data[0]).forEach((key) => {
+            const th = document.createElement('th');
+            th.classList.add('px-5', 'py-3', 'border-b-2', 'border-gray-200', 'bg-gray-100', 'text-left', 'text-xs', 'font-semibold', 'text-gray-600', 'uppercase', 'tracking-wider');
+            th.textContent = key;
+            headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        // Create table body
+        const tbody = document.createElement('tbody');
+        data.forEach((row) => {
+            const tr = document.createElement('tr');
+            tr.classList.add('bg-white');
+            Object.values(row).forEach((val) => {
+                const td = document.createElement('td');
+                td.classList.add('px-5', 'py-5', 'border-b', 'border-gray-200', 'bg-white', 'text-sm');
+                td.textContent = val;
+                tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+
+        resultsDiv.appendChild(table);
+    } else {
+        // Display 'No results found' if data is empty
+        resultsDiv.textContent = 'No results found.';
+    }
+}
+</script>
+</body>
+</html>

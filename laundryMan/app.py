@@ -1,56 +1,111 @@
-from flask import Flask, render_template, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from flask import Flask, render_template, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import text
-from sqlalchemy import inspect
+from flask import Flask, redirect, render_template, request
+from flask_mysqldb import MySQL
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
+from flask import Flask, render_template, request, redirect, jsonify
+from flask_login import LoginManager, login_user, logout_user, login_required
+from flask_login import UserMixin
+from flask import url_for
 
+# MySQL configurations
+users_with_roles = {
+    'admin@example.com': {
+        'password_hash': 'adminpass',
+        'role': 'admin'
+    },
+    'user@example.com': {
+        'password_hash': 'userpass',
+        'role': 'user'
+    }
+}
 
 app = Flask(__name__)
-# Update the URI with your MySQL credentials and database name
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:hyperbeam150@localhost/laundryMan'
-db = SQLAlchemy(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
+app.secret_key ='maujmasti'
 
-def get_table_names():
-    inspector = inspect(db.engine)
-    return inspector.get_table_names()
+class User(UserMixin):
+    def __init__(self, email):
+        self.id = email
+        self.role = users_with_roles[email]['role']
 
-@app.route('/')
-def index():
-    table_names = get_table_names()
-    return render_template('index.html', table_names=table_names)
+@login_manager.user_loader
+def load_user(user_id):
+    if user_id in users_with_roles:
+        return UserMixin()
+    return None
+
+@app.route('/adminindex')
+def adminindex():
+    admin_tables = ['belongs_to','customer','smart_laundry',' gsj_employee','order','item_of_clothing','vehicles','hostel','payment','washing','transaction','places_order','phone_number']
+    return render_template('adminindex.html', table_names=admin_tables)
+
+@app.route('/userindex')
+def userindex():
+    user_tables = ['customer','order','payment']
+    return render_template('userindex.html', table_names=user_tables)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        user = users_with_roles.get(email)
+        print(user)
+        if user and (user['password_hash'] == password):
+            user_obj = User(email)
+            login_user(user_obj)
+            print(user_obj.role)
+            if user_obj.role == 'admin':
+                    return jsonify({'redirect_url': url_for('adminindex')})
+            else:
+                    return jsonify({'redirect_url': url_for('userindex')})
+        else:
+            return 'Invalid email or password'
+    return render_template('login.html')
+                                            
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = 'pass'
+app.config['MYSQL_DB'] = 'Laundry'
+mysql = MySQL(app)
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect('/login')
 
 @app.route('/run_query', methods=['POST'])
 def run_query():
-    query = text(request.form['query'])
-    
-    try:
-        result = db.session.execute(query)
-        db.session.commit()
-        columns = [col[0] for col in result.cursor.description]
-        data = [dict(zip(columns, row)) for row in result]
+    query = 'SELECT * FROM customer'
+    operation = request.form.get('operation')
+    table_name = request.form.get('table_name')
+    where_clause = request.form.get('where_clause')
+    if operation == 'SELECT':
+        if where_clause != "":
+            query = f'{operation} * FROM {table_name} WHERE {where_clause}'
+        else:
+            query = f'{operation} * FROM {table_name}'
+    elif operation == 'INSERT':
+        columns = request.form['columns']
+        values = request.form['values']
+        query = f'{operation} INTO {table_name} ({columns}) VALUES ({values})'
+    elif operation == 'UPDATE':
+        set_clause = request.form['set_clause']
+        query = f'{operation} {table_name} SET {set_clause} WHERE {where_clause}'
+    elif operation == 'DELETE':
+        query = f'{operation} FROM {table_name} WHERE {where_clause}'
+    try:   
+        cursor = mysql.connection.cursor()
+        cursor.execute(query)
+        mysql.connection.commit()
+        columns = [desc[0] for desc in cursor.description]
+        data = [dict(zip(columns, row)) for row in cursor.fetchall()]
+        cursor.close()
         return jsonify({'status': 'success', 'data': data})
     except Exception as e:
-        db.session.rollback()
+        mysql.connection.rollback()
         return jsonify({'status': 'error', 'message': str(e)})
     
-
-@app.route('/get_table_data/<table_name>')
-def get_table_data(table_name):
-    query = text(f"SELECT * FROM {table_name}")
-    query = str(query)
-    query += "`"
-    query_word_list = query.split()
-    query_word_list[-1] = "`" + query_word_list[-1]
-    query = " ".join(query_word_list)
-    query = text(query)
-    try:
-        result = db.session.execute(query)
-        columns = [column["name"] for column in inspect(db.engine).get_columns(table_name)]
-        data = [dict(zip(columns, row)) for row in result]
-        return jsonify({'status': 'success', 'columns': columns, 'data': data})
-    except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)})
-
 if __name__ == '__main__':
     app.run(debug=True)

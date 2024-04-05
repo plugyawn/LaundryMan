@@ -36,7 +36,7 @@ def load_user(user_id):
 
 @app.route('/adminindex')
 def adminindex():
-    admin_tables = ['belongs_to','customer','smart_laundry',' gsj_employee','order','item_of_clothing','vehicles','hostel','payment','washing','transaction','places_order','phone_number']
+    admin_tables = ['belongs_to','customer','smart_laundry',' gsj_employee','`order`','item_of_clothing','vehicles','hostel','payment','washing','transaction','places_order','phone_number']
     return render_template('adminindex.html', table_names=admin_tables)
 
 @app.route('/userindex')
@@ -44,7 +44,7 @@ def userindex():
     user_tables = ['customer','order','payment']
     return render_template('userindex.html', table_names=user_tables)
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form['email']
@@ -75,6 +75,39 @@ def logout():
     logout_user()
     return redirect('/login')
 
+@app.route('/get_records', methods=['GET'])
+def get_records():
+    table_name = request.args.get('table_name')
+    if not table_name:
+        return jsonify({'status': 'error', 'message': 'Table name is required'}), 400
+
+    query = f"SELECT * FROM {table_name}"
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute(query)
+        columns = [desc[0] for desc in cursor.description]
+        data = [dict(zip(columns, row)) for row in cursor.fetchall()]
+        cursor.close()
+        return jsonify({'status': 'success', 'data': data})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/get_column_names', methods=['GET'])
+def get_column_names():
+    table_name = request.args.get('table_name')
+    if not table_name:
+        return jsonify({'status': 'error', 'message': 'Table name is required'}), 400
+
+    try:
+        cursor = mysql.connection.cursor()
+        query = f"SHOW COLUMNS FROM {table_name}"
+        cursor.execute(query)
+        columns = [row[0] for row in cursor.fetchall()]
+        cursor.close()
+        return jsonify({'status': 'success', 'data': columns})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
 @app.route('/run_query', methods=['POST'])
 def run_query():
     query = 'SELECT * FROM customer'
@@ -87,9 +120,8 @@ def run_query():
         else:
             query = f'{operation} * FROM {table_name}'
     elif operation == 'INSERT':
-        columns = request.form['columns']
-        values = request.form['values']
-        query = f'{operation} INTO {table_name} ({columns}) VALUES ({values})'
+        values = tuple(request.form.getlist('values[]'))
+        query = f'{operation} INTO {table_name} VALUES ({values})'
     elif operation == 'UPDATE':
         set_clause = request.form['set_clause']
         query = f'{operation} {table_name} SET {set_clause} WHERE {where_clause}'
@@ -106,6 +138,27 @@ def run_query():
     except Exception as e:
         mysql.connection.rollback()
         return jsonify({'status': 'error', 'message': str(e)})
-    
+
+@app.route('/update_record', methods=['POST'])
+def update_record():
+    # You may need to adjust the data extraction based on the format sent by your JavaScript code
+    data = request.json
+    record_id = data.get('id')
+    table_name = data.get('table_name')
+    updated_values = {k: v for k, v in data.items() if k not in ['id', 'table_name']}
+
+    try:
+        cursor = mysql.connection.cursor()
+        # Generate the SQL UPDATE statement
+        update_statements = ', '.join(f"{k}='{v}'" for k, v in updated_values.items())
+        query = f"UPDATE {table_name} SET {update_statements} WHERE id={record_id}"
+        cursor.execute(query)
+        mysql.connection.commit()
+        cursor.close()
+        return jsonify({'status': 'success', 'message': 'Record updated successfully'})
+    except Exception as e:
+        mysql.connection.rollback()
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=True)

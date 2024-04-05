@@ -65,8 +65,8 @@ def login():
                                             
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'pass'
-app.config['MYSQL_DB'] = 'Laundry'
+app.config['MYSQL_PASSWORD'] = 'hyperbeam150'
+app.config['MYSQL_DB'] = 'LaundryMan'
 mysql = MySQL(app)
 
 @app.route('/logout')
@@ -108,20 +108,51 @@ def get_column_names():
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
+@app.route('/get_table_data')
+def get_table_data():
+    table_name = request.args.get('table_name')
+    cursor = mysql.connection.cursor()
+    cursor.execute(f"SELECT * FROM {table_name}")
+    records = cursor.fetchall()
+    column_names = [desc[0] for desc in cursor.description]
+    return jsonify({'status': 'success', 'columnNames': column_names, 'records': records})
+
 @app.route('/run_query', methods=['POST'])
 def run_query():
     query = 'SELECT * FROM customer'
     operation = request.form.get('operation')
     table_name = request.form.get('table_name')
     where_clause = request.form.get('where_clause')
+    selected_columns = request.form.getlist('selected_columns')
+    print(selected_columns)
+
+    print(operation, table_name, where_clause)
     if operation == 'SELECT':
-        if where_clause != "":
-            query = f'{operation} * FROM {table_name} WHERE {where_clause}'
+        if where_clause != "" and where_clause:
+            if selected_columns:
+                columns = ', '.join(selected_columns)
+                query = f'{operation} {columns} FROM {table_name} WHERE {where_clause}'
+                print(query)
+                print('Got here!')
+            else:
+                print('Accidentally gott here!')
+                query = f'{operation} * FROM {table_name} WHERE {where_clause}'
         else:
-            query = f'{operation} * FROM {table_name}'
+            if selected_columns:
+                columns = ', '.join(selected_columns)
+                query = f'{operation} {columns} FROM {table_name}'
+            else:
+                query = f'{operation} * FROM {table_name}'
+
     elif operation == 'INSERT':
-        values = tuple(request.form.getlist('values[]'))
-        query = f'{operation} INTO {table_name} VALUES ({values})'
+        print('Got here! (INSERT)')
+        values = str(request.form.get('values[]'))
+        values = (tuple(values.split(',')))
+        if values[0] == '':
+            values = values[1:]
+        print(values)
+        query = f'{operation} INTO {table_name} VALUES {values}'
+        print(query)
     elif operation == 'UPDATE':
         set_clause = request.form['set_clause']
         query = f'{operation} {table_name} SET {set_clause} WHERE {where_clause}'
@@ -131,8 +162,12 @@ def run_query():
         cursor = mysql.connection.cursor()
         cursor.execute(query)
         mysql.connection.commit()
-        columns = [desc[0] for desc in cursor.description]
-        data = [dict(zip(columns, row)) for row in cursor.fetchall()]
+        print(query)
+        if operation == 'SELECT':
+            columns = [desc[0] for desc in cursor.description]
+            data = [dict(zip(columns, row)) for row in cursor.fetchall()]
+        else:
+            data = None
         cursor.close()
         return jsonify({'status': 'success', 'data': data})
     except Exception as e:
@@ -141,24 +176,26 @@ def run_query():
 
 @app.route('/update_record', methods=['POST'])
 def update_record():
-    # You may need to adjust the data extraction based on the format sent by your JavaScript code
     data = request.json
-    record_id = data.get('id')
-    table_name = data.get('table_name')
-    updated_values = {k: v for k, v in data.items() if k not in ['id', 'table_name']}
+    tableName = data['tableName']
+    updatedRecord = data['updatedRecord']
+    whereClause = data['whereClause']
+
+    # Construct the SET clause for the UPDATE statement
+    setClause = ', '.join([f"{key}='{value}'" for key, value in updatedRecord.items()])
+
+    query = f"UPDATE {tableName} SET {setClause} WHERE {whereClause}"
+    print(query)
 
     try:
         cursor = mysql.connection.cursor()
-        # Generate the SQL UPDATE statement
-        update_statements = ', '.join(f"{k}='{v}'" for k, v in updated_values.items())
-        query = f"UPDATE {table_name} SET {update_statements} WHERE id={record_id}"
         cursor.execute(query)
         mysql.connection.commit()
         cursor.close()
         return jsonify({'status': 'success', 'message': 'Record updated successfully'})
     except Exception as e:
         mysql.connection.rollback()
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+        return jsonify({'status': 'error', 'message': str(e)})
 
 if __name__ == '__main__':
     app.run(debug=True)

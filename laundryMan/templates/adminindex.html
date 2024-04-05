@@ -40,16 +40,66 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
 
-function runQuery() {
+function runQuery(whereClause) {
     const operation = document.getElementById('operation').value;
     const tableName = document.getElementById('table').value;
-    const whereClause = document.getElementById('where').value;
+    var whereClause_dummy = '';
+    // const whereClause = document.getElementById('where').value;
+    console.log(operation)
+   let whereClauseSelected = false; 
+
+    if (operation == 'SELECT'){
+        console.log("Reached this!")
+        const selectedColumns = document.querySelectorAll('input[name="selected_columns"]:checked');
+        const whereClauses = [];
+        const selectedColumnNames = [];
+        console.log(selectedColumns)
+
+        selectedColumns.forEach(column => {
+            const columnName = column.value;
+            const operation = document.querySelector(`select[name="operation_${columnName}"]`).value;
+            const filterValue = document.querySelector(`input[name="filter_${columnName}"]`).value;
+
+            if (filterValue) {
+                whereClauses.push(`${columnName} ${operation} '${filterValue}'`);
+            }
+
+            selectedColumnNames.push(column.value);
+        });
+        whereClause_dummy = whereClauses.join(' AND ');
+        selectedColumnNames_dummy = selectedColumnNames.join(', ');
+        // console.log(whereClause_dummy, "1")
+        whereClauseSelected = true;
+        console.log(selectedColumnNames)
+    }
+    // console.log(whereClause_dummy, "2")
 
     const formData = new FormData();
     formData.append('operation', operation);
     formData.append('table_name', tableName);
-    formData.append('where_clause', whereClause);
 
+    if (operation == 'INSERT'){
+        const inputs = document.getElementById('operationFormContainer').querySelectorAll('input');
+        const values = Array.from(inputs).map(input => input.value);
+        console.log(values)
+        formData.append('values[]', values);
+    }
+
+    if (whereClauseSelected){
+        console.log("whereClauseSelected")
+        console.log(whereClause_dummy)
+        formData.append('where_clause', whereClause_dummy);
+
+        console.log("----------")
+        console.log(selectedColumnNames_dummy)
+        formData.append('selected_columns', selectedColumnNames_dummy);
+    }
+
+    if (whereClause){
+    console.log(whereClause)
+    formData.append('where_clause', whereClause);
+    }
+    console.log(operation, tableName)
     fetch('/run_query', {
         method: 'POST',
         body: formData
@@ -68,6 +118,12 @@ function runQuery() {
         console.error('Error:', error);
         alert('An error occurred while running the query: ' + error.message);
     });
+
+    if (operation == 'INSERT'){
+        // Clear the form after submitting the INSERT query
+        fetchColumnsForInsert(tableName);
+        // fetchColumnNames(tableName);
+    }
 }
 
 function displayQueryResults(data) {
@@ -96,6 +152,7 @@ function displayQueryResults(data) {
         // Create table body
         const tbody = document.createElement('tbody');
         data.forEach((row) => {
+            console.log("For Select, Data is processed thus: ", row);
             const tr = document.createElement('tr');
             tr.classList.add('bg-white');
             Object.values(row).forEach((val) => {
@@ -197,17 +254,17 @@ function displaySelectForm(columnNames) {
 }
 
 function fetchColumnNames(tableName) {
-    fetch(`/get_column_names?table_name=${tableName}`)
+    fetch(`/get_table_data?table_name=${tableName}`)
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
-                displayInsertForm(data.data);
+                displayInsertForm(data.columnNames, data.records);
             } else {
                 alert(data.message);
             }
         })
         .catch(error => {
-            console.error('Error:', error);
+            console.error('Error:', error); 
             alert(error.message);
         });
 }
@@ -242,8 +299,8 @@ function submitInsertForm() {
 }
 
 function fetchRecordsForDeletion(t) {
-    // Perform the fetch request to get records
-    fetch('/get_records?table_name=belongs_to')
+    const tableName = document.getElementById('table').value;
+    fetch('/get_records?table_name=' + tableName)
     .then(response => response.json())
     .then(data => {
         if (data.status === 'success') {
@@ -300,8 +357,12 @@ function displayInsertForm(columnNames) {
 }
 
 function displayDeleteForm(records) {
+
     const formContainer = document.getElementById('operationFormContainer');
     const tableName = document.getElementById('table').value;
+    formContainer.innerHTML = ''; // Clear existing form
+    // init a boolean
+    let refreshNow = false;
 
     // Create a table element
     const table = document.createElement('table');
@@ -339,12 +400,20 @@ function displayDeleteForm(records) {
         deleteButton.onclick = function() {
             const whereClause = Object.entries(record).map(([key, value]) => `${key}='${value}'`).join(' AND ');
             deleteRecord(tableName, whereClause);
+            refreshNow = true;
+            console.log(refreshNow);
+            console.log("here");
+            // table.remove();
+            formContainer.innerHTML = ''; // Clear existing form
+            if (refreshNow === true) {
+            console.log('Refreshing');
+            fetchRecordsForDeletion(tableName);
+        }
         };
 
         const tdButton = document.createElement('td');
         tdButton.appendChild(deleteButton);
         tr.appendChild(tdButton);
-
         tbody.appendChild(tr);
     });
     table.appendChild(tbody);
@@ -356,7 +425,8 @@ function displayDeleteForm(records) {
 function deleteRecord(tableName, whereClause) {
     const query = `DELETE FROM ${tableName} WHERE ${whereClause}`;
     // Call runQuery to execute the delete operation
-    runQuery(query);
+    console.log(query)
+    runQuery(whereClause);
 }
 
 function fetchRecordsForUpdate() {
@@ -376,84 +446,152 @@ function fetchRecordsForUpdate() {
         });
 }
 
+function fetchColumnsForInsert(tableName) {
+    console.log("GOT HERE!")
+    fetch(`/get_table_data?table_name=${tableName}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                displayInsertForm(data.columnNames, data.records);
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while fetching column names.');
+        });
+}
+
+function displayInsertForm(columnNames, records) {
+    console.log("Columns\n", columnNames)
+    console.log("Records\n", records)
+    const formContainer = document.getElementById('operationFormContainer');
+    formContainer.innerHTML = ''; // Clear existing form
+
+    const table = document.createElement('table');
+    table.classList.add('min-w-full', 'shadow', 'overflow-hidden', 'border-b', 'border-gray-200', 'sm:rounded-lg');
+
+    // Create the table header
+    const thead = document.createElement('thead');
+    thead.classList.add('bg-gray-50');
+    const headerRow = document.createElement('tr');
+    columnNames.forEach(columnName => {
+        const th = document.createElement('th');
+        th.textContent = columnName;
+        th.classList.add('px-6', 'py-3', 'text-left', 'text-xs', 'font-medium', 'text-gray-500', 'uppercase', 'tracking-wider');
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    // Create the table body
+    const tbody = document.createElement('tbody');
+
+    // Create a row for inserting new data
+    const insertRow = document.createElement('tr');
+    // make insertRow bigger
+    insertRow.classList.add('bg-blue', 'text-lg');
+
+    columnNames.forEach(columnName => {
+        const td = document.createElement('td');
+        const input = document.createElement('input');
+        input.setAttribute('type', 'text');
+        input.setAttribute('name', columnName);
+        input.classList.add('mt-1', 'focus:ring-indigo-500', 'focus:border-indigo-500', 'block', 'w-full', 'shadow-sm', 'sm:text-sm', 'border-gray-300', 'rounded-md', 'p-2', 'text-black', 'text-lg');
+        td.appendChild(input);
+        insertRow.appendChild(td);
+    });
+    tbody.appendChild(insertRow);
+
+    // Add rows for existing records
+    records.forEach(record => {
+        const tr = document.createElement('tr');
+        tr.classList.add('bg-white');
+        Object.values(record).forEach((val) => {
+            const td = document.createElement('td');
+            td.classList.add('px-5', 'py-5', 'border-b', 'border-gray-200', 'bg-white', 'text-sm');
+            td.textContent = val;
+            tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+    });
+
+    table.appendChild(tbody);
+    formContainer.appendChild(table);
+}
+
 function editRecord(index, record) {
     const table = document.getElementById('operationFormContainer').querySelector('table');
     const tbody = table.querySelector('tbody');
     const rows = tbody.querySelectorAll('tr');
-    const editRow = rows[index]; // Get the specific row to edit
+    const editRow = rows[index];
 
-    // Convert each cell in the row to an editable input, except for the last cell with the button
     for (let i = 0; i < editRow.cells.length - 1; i++) {
         const cell = editRow.cells[i];
         const input = document.createElement('input');
         input.type = 'text';
-        input.value = cell.textContent; // Assuming cell.textContent contains the value of the record
-        input.dataset.original = cell.textContent; // Store original data to detect changes
-        input.classList.add('border', 'px-2', 'py-1'); // Add any styling classes here
-        cell.innerHTML = ''; // Clear the cell for the input
-        cell.appendChild(input); // Append the input to the cell
+        input.value = cell.textContent;
+        cell.innerHTML = '';
+        cell.appendChild(input);
     }
 
-    // Change the Edit button to a Save button
     const saveButton = document.createElement('button');
     saveButton.innerText = 'Save';
     saveButton.classList.add('save-btn', 'px-2', 'py-1', 'text-xs', 'font-semibold', 'text-white', 'bg-green-500', 'rounded');
     saveButton.onclick = () => saveRecord(index, record);
 
-    const editCell = editRow.cells[editRow.cells.length - 1]; // last cell should be the edit button cell
-    editCell.innerHTML = ''; // Clear the cell
+    const editCell = editRow.cells[editRow.cells.length - 1];
+    editCell.innerHTML = '';
     editCell.appendChild(saveButton);
 }
 
-function saveRecord(index, record) {
+function saveRecord(index, originalRecord) {
     const table = document.getElementById('operationFormContainer').querySelector('table');
     const tbody = table.querySelector('tbody');
     const editRow = tbody.querySelectorAll('tr')[index];
     const inputs = editRow.querySelectorAll('input');
-    
-    // Construct an object with the updated record data
+
     let updatedRecord = {};
-    let isChanged = false;
-    inputs.forEach(function(input)  {
-        const key = Object.keys(record)[i];
-        const originalValue = input.dataset.original;
+    let whereClauses = [];
+
+    inputs.forEach((input, i) => {
+        const key = Object.keys(originalRecord)[i];
+        const originalValue = originalRecord[key];
         const currentValue = input.value;
-        if (originalValue !== currentValue && currentValue !== '') {
-            isChanged = true;
+
+        if (currentValue !== originalValue) {
             updatedRecord[key] = currentValue;
         }
+
+        whereClauses.push(`${key}='${originalValue}'`);
     });
 
-    if (isChanged) {
-        // TODO: Send the updatedRecord to the server to update the database
-        // After successful update, you can change the Save button back to Edit and update the row to show the new values
-        console.log('Updated Record:', updatedRecord);
-        // For example, you might use fetch to send a POST request with updatedRecord as the body
+    const whereClause = whereClauses.join(' AND ');
+
+    if (Object.keys(updatedRecord).length > 0) {
         fetch('/update_record', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: record.id, ...updatedRecord }) // Assuming there's an 'id' field to identify the record
+            body: JSON.stringify({ tableName: document.getElementById('table').value, updatedRecord, whereClause })
         })
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
-                // Update the UI to reflect the saved changes
-                // Convert inputs back to text, and change the Save button to Edit
                 inputs.forEach((input, i) => {
                     const cell = editRow.cells[i];
                     cell.textContent = input.value;
+                    originalRecord[Object.keys(originalRecord)[i]] = input.value;
                 });
 
                 const editButton = document.createElement('button');
                 editButton.innerText = 'Edit';
                 editButton.classList.add('edit-btn', 'px-2', 'py-1', 'text-xs', 'font-semibold', 'text-white', 'bg-yellow-500', 'rounded');
-                editButton.onclick = () => editRecord(index, record);
+                editButton.onclick = () => editRecord(index, originalRecord);
 
-                const tdButton = document.createElement('td');
-                tdButton.appendChild(editButton);
-                tr.appendChild(tdButton);
-
-        tbody.appendChild(tr);
+                const buttonCell = editRow.cells[editRow.cells.length - 1];
+                buttonCell.innerHTML = '';
+                buttonCell.appendChild(editButton);
             } else {
                 alert(data.message);
             }
@@ -522,6 +660,7 @@ function displayUpdateForm(records) {
     table.appendChild(tbody);
     formContainer.appendChild(table);
 }
+
 function updateTableForm() {
     const operation = document.getElementById('operation').value;
     const tableName = document.getElementById('table').value;

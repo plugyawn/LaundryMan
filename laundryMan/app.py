@@ -286,9 +286,11 @@ def run_query():
     operation = request.form.get('operation')
     table_name = None
     if session['role'] == 'user':
-       temp = request.form.get('customer')
+       temp = request.form.get('table_name')
        if temp  not in user_tables:
-            table_name = 'customer'
+            return jsonify({'status': 'error', 'message': "Invalid table name"})
+       else:
+            table_name = temp
     query = f'{operation} * FROM {table_name}'
     where_clause = request.form.get('where_clause')
     selected_columns = request.form.getlist('selected_columns')

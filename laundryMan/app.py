@@ -50,18 +50,6 @@ app.config['MYSQL_PASSWORD'] = 'Khajanchi@303'
 app.config['MYSQL_DB'] = 'Laundry'
 mysql = MySQL(app)
 
-# Google auth
-# os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
-# client_secrets_file = os.path.join(pathlib.Path(__file__).parent,"client_secret.json")
-# GOOGLE_CLIENT_ID = "38258961425-j2le7d19q6tti2ce24f5q1b49rf36r6b.apps.googleusercontent.com"
-# flow = Flow.from_client_secrets_file(
-#     client_secrets_file=client_secrets_file,
-#     scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
-#     redirect_uri="http://127.0.0.1:5000/callback"
-# )
-
-
-
 
 # app.config['SERVER_NAME'] = 'localhost:5000'
 oauth = OAuth(app)
@@ -72,8 +60,7 @@ def google():
     # Google Oauth Config
     # Get client_id and client_secret from environment variables
     # For developement purpose you can directly put it here inside double quotes
-    GOOGLE_CLIENT_ID = "143044485728-0ma9roj5fjt8ccf8f9uhgsv6n2mhh4ik.apps.googleusercontent.com"
-    GOOGLE_CLIENT_SECRET = "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"
+
     CONF_URL = 'https://accounts.google.com/.well-known/openid-configuration'
     oauth.register(
         name='google',

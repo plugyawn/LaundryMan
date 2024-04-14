@@ -6,6 +6,8 @@ from flask_login import LoginManager, login_user, logout_user, login_required
 from flask_login import UserMixin
 from flask import url_for
 
+sessionState = 0
+
 # MySQL configurations
 users_with_roles = {
     'admin@example.com': {
@@ -36,13 +38,19 @@ def load_user(user_id):
 
 @app.route('/adminindex')
 def adminindex():
-    admin_tables = ['belongs_to','customer','smart_laundry',' gsj_employee','`order`','item_of_clothing','vehicles','hostel','payment','washing','transaction','places_order','phone_number']
-    return render_template('adminindex.html', table_names=admin_tables)
+    if sessionState == 1:
+        admin_tables = ['belongs_to','customer','smart_laundry',' gsj_employee','`order`','item_of_clothing','vehicles','hostel','payment','washing','transaction','places_order','phone_number']
+        return render_template('adminindex.html', table_names=admin_tables)
+    else:
+        return redirect('/')
 
 @app.route('/userindex')
 def userindex():
-    user_tables = ['customer','order','payment']
-    return render_template('userindex.html', table_names=user_tables)
+    if sessionState == 2:
+        user_tables = ['customer','order','payment']
+        return render_template('userindex.html', table_names=user_tables)
+    else:
+        return redirect('/')
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
@@ -56,8 +64,10 @@ def login():
             login_user(user_obj)
             print(user_obj.role)
             if user_obj.role == 'admin':
+                    sessionState = 1
                     return jsonify({'redirect_url': url_for('adminindex')})
             else:
+                    sessionState = 2
                     return jsonify({'redirect_url': url_for('userindex')})
         else:
             return 'Invalid email or password'
@@ -65,8 +75,8 @@ def login():
                                             
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'hyperbeam150'
-app.config['MYSQL_DB'] = 'LaundryMan'
+app.config['MYSQL_PASSWORD'] = 'pass'
+app.config['MYSQL_DB'] = 'Laundry'
 mysql = MySQL(app)
 
 @app.route('/logout')

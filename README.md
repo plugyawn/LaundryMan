@@ -76,7 +76,7 @@
 
 # Attacks
 
-## CROSS SITE SCRIPTING (XSS)
+## 1. CROSS SITE SCRIPTING (XSS)
 
 XSS is an attack in which we input some malicious JavaScript in the input box which then gets embedded in the HTML and later gets executed when the infected page is opened.
 
@@ -93,7 +93,7 @@ To prevent XSS we have made a variable name “autoescape” true in all the HTM
 At the starting of the HTML file add{% autoescape true %}
 
 
-## SQL INJECTION
+## 2. SQL INJECTION
 
 An SQL injection involves embedding SQL code into an input field that lacks proper sanitization. If this input can cause the backend server to execute the injected SQL, despite the application not officially supporting direct SQL command execution, the SQL injection attempt is considered successful.
 
@@ -107,7 +107,7 @@ Even though the "item_of_clothing" table is not directly accessible, using the i
 The defense against such an SQL injection is to sanitize the input whenever it is received from the user. We shouldn’t directly take user input as it is. We should first do some checks and only display data if the input is validated and secure. 
 The check I’m performing is whether the tableName input is in the list of tables accessible to the  “user” - this way I throw an error whenever I receive a value which is not a valid name of a table.
 
-## URL ATTACK
+## 3. URL ATTACK
 
 The login credentials are requested on the initial welcome page. However, if an attacker enters a direct URL to a page that should require authentication, access is granted. The code snippet provided does not include measures to prevent this security lapse. For instance, by appending '/adminindex’' to the URL, an attacker could bypass the login process and gain admin-level access to the database, which is set as the default role..
 
@@ -117,14 +117,14 @@ We’ve implemented a role-based access control (RBAC) system in a Python web ap
 The code differentiates between 'admin' and 'user' roles. When an 'admin' tries to access the admin index (/adminindex), or a 'user' tries to access the user index (/userindex), it works fine. However, if someone with a different role, or someone who is not logged in, tries to access these URLs, they get redirected to the home page (/).
 
 
-## `“WHERE”` CLAUSE ATTACK
+## 4. `“WHERE”` CLAUSE ATTACK
 There is a hidden WHERE clause in the HTML of the codebase. The codebase, once accessed via inspect-element available on most leading browsers, can be used to execute arbitrary code via the WHERE clause. 
 However, it was required by our backend code to function properly.
 
 ### Solution
 Can be fixed by requiring a randomly generated key from the database whenever queried. The attacker won’t have access to the token and won’t be able to add SQL code.
 
-## 	Denial of Service Attacks
+## 5.	Denial of Service Attacks
 A traditional DoS attack can be executed by rapidly pinging the server holding the database, especially when locally hosted on IITGN-SSO. This has been done for multiple websites before.
 
 

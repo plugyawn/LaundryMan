@@ -1,11 +1,16 @@
+<<<<<<< HEAD
 from flask import Flask, session, abort, redirect, render_template, request
 import requests
+=======
+from flask import Flask, redirect, render_template, request, session
+>>>>>>> 9af45daf001f8f752214131a71a8d4b3c24d6f49
 from flask_mysqldb import MySQL
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
 from flask import Flask, render_template, request, redirect, jsonify
 from flask_login import LoginManager, login_user, logout_user, login_required
 from flask_login import UserMixin
 from flask import url_for
+<<<<<<< HEAD
 from google.oauth2 import id_token
 from google_auth_oauthlib.flow import Flow
 from pip._vendor import cachecontrol
@@ -16,6 +21,9 @@ import pathlib
 from oauthlib.oauth2 import WebApplicationClient
 from authlib.integrations.flask_client import OAuth
 
+=======
+user_tables = ['customer','order','payment']
+>>>>>>> 9af45daf001f8f752214131a71a8d4b3c24d6f49
 # MySQL configurations
 users_with_roles = {
     'admin@example.com': {
@@ -153,13 +161,22 @@ def load_user(user_id):
 #     return redirect("/adminindex")
 
 @app.route('/adminindex')
+<<<<<<< HEAD
 # @login_is_required
+=======
+@login_required
+>>>>>>> 9af45daf001f8f752214131a71a8d4b3c24d6f49
 def adminindex():
+    if session['role'] != 'admin':
+        return redirect('/')
     admin_tables = ['belongs_to','customer','smart_laundry',' gsj_employee','`order`','item_of_clothing','vehicles','hostel','payment','washing','transaction','places_order','phone_number']
     return render_template('adminindex.html', table_names=admin_tables)
 
 @app.route('/userindex')
+@login_required
 def userindex():
+    if session['role'] != 'user':
+        return redirect('/')
     user_tables = ['customer','order','payment']
     return render_template('userindex.html', table_names=user_tables)
 
@@ -195,6 +212,7 @@ def login():
         if user and (user['password_hash'] == password):
             user_obj = User(email)
             login_user(user_obj)
+            session['role'] = user_obj.role
             print(user_obj.role)
             if user_obj.role == 'admin':
                     return jsonify({'redirect_url': url_for('adminindex')})
@@ -204,7 +222,15 @@ def login():
             return 'Invalid email or password'
     return render_template('login.html')
                                             
+<<<<<<< HEAD
 
+=======
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = 'pass'
+app.config['MYSQL_DB'] = 'Laundry'
+mysql = MySQL(app)
+>>>>>>> 9af45daf001f8f752214131a71a8d4b3c24d6f49
 
 @app.route('/logout')
 @login_required
@@ -258,7 +284,12 @@ def get_table_data():
 def run_query():
     query = 'SELECT * FROM customer'
     operation = request.form.get('operation')
-    table_name = request.form.get('table_name')
+    table_name = None
+    if session['role'] == 'user':
+       temp = request.form.get('customer')
+       if temp  not in user_tables:
+            table_name = 'customer'
+    query = f'{operation} * FROM {table_name}'
     where_clause = request.form.get('where_clause')
     selected_columns = request.form.getlist('selected_columns')
     print(selected_columns)
@@ -333,6 +364,9 @@ def update_record():
     except Exception as e:
         mysql.connection.rollback()
         return jsonify({'status': 'error', 'message': str(e)})
+
+app.config['SESSION_COOKIE_SECURE'] = True  # Only send cookies over HTTPS
+app.config['SESSION_COOKIE_HTTPONLY'] = True  # Prevent client-side JS from accessing the session cookie
 
 if __name__ == '__main__':
     app.run(debug=False, host='0.0.0.0')

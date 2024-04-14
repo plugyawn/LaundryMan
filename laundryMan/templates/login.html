@@ -28,9 +28,13 @@
                         Sign In
                     </button>
                 </div>
+                <div class="flex items-center justify-between pt-4">
+                     <a href="/google/" class="px-6 py-2 bg-blue-500 hover:bg-blue-700 text-white font-bold rounded">Login with IITGN Mail</a>
+                </div>
+               
             </form>
             <p class="text-center text-gray-500 text-xs">
-                &copy;2024 Acme Corp. All rights reserved.
+                &copy;2024 MangoDB Corp. All rights reserved.
             </p>
         </div>
     </div>
@@ -45,7 +49,7 @@
     formData.append('email', email);
     formData.append('password', password);
 
-    fetch('/', {
+    fetch('/login', {
         method: 'POST',
         body: formData
     })

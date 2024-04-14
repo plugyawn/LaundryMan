@@ -64,8 +64,8 @@ def google():
     CONF_URL = 'https://accounts.google.com/.well-known/openid-configuration'
     oauth.register(
         name='google',
-        client_id=GOOGLE_CLIENT_ID,
-        client_secret=GOOGLE_CLIENT_SECRET,
+        client_id= None,  # your GOOGLE_CLIENT_ID here,
+        client_secret= None, # your GOOGLE_CLIENT_SECRET here,
         server_metadata_url=CONF_URL,
         client_kwargs={
             'scope': 'openid email profile'
@@ -82,15 +82,7 @@ def google_auth():
     
     nonce = request.args.get('nonce')  # Retrieve the nonce from the request
     user = oauth.google.parse_id_token(token, nonce=nonce)  
-    print(" Google User ", user)
     return redirect('/userindex')
-
-
-
-
-
-
-
 
 
 # User class
